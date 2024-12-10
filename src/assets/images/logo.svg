@@ -1,0 +1,7 @@
+<svg width="180" height="40" viewBox="0 0 180 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M20 0H40L20 40H0L20 0Z" fill="#3B82F6"/>
+  <path d="M25 0H45L25 40H5L25 0Z" fill="#60A5FA" fill-opacity="0.5"/>
+  <text x="55" y="28" fill="#1E3A8A" font-family="Arial" font-weight="bold" font-size="24">
+    LandingLab
+  </text>
+</svg>

@@ -1,0 +1,30 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Fonction pour vérifier si l'utilisateur est authentifié
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Fonction pour vérifier si l'utilisateur est le propriétaire du document
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    // Règles pour la collection landingPages
+    match /landingPages/{pageId} {
+      // Permettre la lecture si l'utilisateur est authentifié et est le propriétaire
+      allow read: if isAuthenticated() && isOwner(resource.data.userId);
+      
+      // Permettre la création si l'utilisateur est authentifié et le userId correspond
+      allow create: if isAuthenticated() && isOwner(request.resource.data.userId);
+      
+      // Permettre la mise à jour si l'utilisateur est authentifié et est le propriétaire
+      allow update: if isAuthenticated() && isOwner(resource.data.userId);
+      
+      // Permettre la suppression si l'utilisateur est authentifié et est le propriétaire
+      allow delete: if isAuthenticated() && isOwner(resource.data.userId);
+    }
+  }
+}
