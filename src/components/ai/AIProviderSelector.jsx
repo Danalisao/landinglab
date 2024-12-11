@@ -6,10 +6,10 @@ const AIProviderSelector = ({ value, onChange, disabled = false }) => {
 
   return (
     <div className="space-y-4">
-      <label className="block text-sm font-medium text-gray-700">
+      <label className="block text-sm font-medium text-white">
         Choisissez votre assistant IA
         {disabled && (
-          <span className="ml-2 text-xs text-gray-500">
+          <span className="ml-2 text-xs text-gray-400">
             (Ce choix ne peut pas être modifié après la création)
           </span>
         )}
@@ -18,17 +18,17 @@ const AIProviderSelector = ({ value, onChange, disabled = false }) => {
         {providers.map((provider) => (
           <div
             key={provider.id}
-            className={`relative rounded-lg border p-4 cursor-pointer transition-all ${
+            className={`relative rounded-xl border p-4 cursor-pointer transition-all ${
               value === provider.id
-                ? 'border-blue-500 bg-blue-50'
-                : 'border-gray-200 hover:border-gray-300'
+                ? 'border-purple-500 bg-purple-500/10'
+                : 'border-white/10 hover:border-white/20 bg-white/5'
             } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
             onClick={() => !disabled && onChange(provider.id)}
           >
             {value === provider.id && (
               <div className="absolute top-4 right-4">
                 <svg
-                  className="h-5 w-5 text-blue-500"
+                  className="h-5 w-5 text-purple-500"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
@@ -42,18 +42,18 @@ const AIProviderSelector = ({ value, onChange, disabled = false }) => {
             )}
 
             <div className="space-y-3">
-              <h3 className="text-lg font-medium text-gray-900">
+              <h3 className="text-lg font-medium text-white">
                 {provider.name}
               </h3>
-              <p className="text-sm text-gray-500">{provider.description}</p>
+              <p className="text-sm text-gray-300">{provider.description}</p>
               <ul className="space-y-2">
                 {provider.features.map((feature, index) => (
                   <li
                     key={index}
-                    className="flex items-start text-sm text-gray-600"
+                    className="flex items-start text-sm text-gray-200"
                   >
                     <svg
-                      className="h-5 w-5 text-green-500 mr-2 flex-shrink-0"
+                      className="h-5 w-5 text-purple-500 mr-2 flex-shrink-0"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"

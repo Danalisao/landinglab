@@ -1,44 +1,119 @@
-import { Configuration, OpenAIApi } from 'openai';
+import axios from 'axios';
 
-const configuration = new Configuration({
-  apiKey: import.meta.env.VITE_OPENAI_API_KEY
-});
+class OpenAIService {
+  constructor() {
+    this.apiUrl = 'http://localhost:5001/api/generate';
+  }
 
-const openai = new OpenAIApi(configuration);
-
-const openaiService = {
-  generateLandingPage: async ({ industry, targetAudience, mainGoal }) => {
+  async generateLandingPage({ industry, targetAudience, mainGoal }) {
     try {
-      const completion = await openai.createChatCompletion({
-        model: "gpt-4",
-        messages: [
-          {
-            role: "system",
-            content: "You are a professional copywriter specialized in creating compelling landing page content in French."
-          },
-          {
-            role: "user",
-            content: `Crée un contenu de landing page pour une entreprise de ${industry} ciblant ${targetAudience} avec l'objectif principal de ${mainGoal}.
-            
-            Format de réponse attendu en JSON :
-            {
-              "title": "Titre accrocheur (max 60 caractères)",
-              "description": "Description persuasive (150-200 mots)",
-              "ctaText": "Texte d'appel à l'action (max 25 caractères)",
-              "benefits": ["3 principaux avantages"]
-            }`
-          }
-        ]
+      console.log('Generating landing page with OpenAI:', { industry, targetAudience, mainGoal });
+
+      const response = await axios.post(this.apiUrl, {
+        industry,
+        targetAudience,
+        mainGoal,
+        service: 'openai'
       });
 
+      console.log('OpenAI API response:', response.data);
+
+      const { generatedContent } = response.data;
+
+      // Valider la structure de la réponse
+      if (!this.validateGeneratedContent(generatedContent)) {
+        throw new Error('Invalid content structure received from API');
+      }
+
       return {
-        generatedContent: JSON.parse(completion.data.choices[0].message.content)
+        generatedContent
       };
     } catch (error) {
-      console.error('Erreur lors de la génération du contenu:', error);
-      throw new Error('Échec de la génération du contenu');
+      console.error('Error generating landing page content:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+      throw new Error(error.response?.data?.error || error.message || 'Failed to generate content');
     }
   }
-};
 
+  validateGeneratedContent(content) {
+    // Validation de base des sections principales
+    return (
+      content &&
+      this.validateHeroSection(content.hero) &&
+      this.validateContentSection(content.content) &&
+      this.validateSocialSection(content.social) &&
+      this.validateClosingSection(content.closing) &&
+      this.validateDesignSection(content.design)
+    );
+  }
+
+  validateHeroSection(hero) {
+    return (
+      hero &&
+      typeof hero.title === 'string' &&
+      typeof hero.subtitle === 'string' &&
+      typeof hero.ctaText === 'string'
+    );
+  }
+
+  validateContentSection(content) {
+    return (
+      content &&
+      typeof content.mainHeadline === 'string' &&
+      typeof content.description === 'string' &&
+      Array.isArray(content.benefits) &&
+      content.benefits.length === 3 &&
+      content.benefits.every(benefit => 
+        typeof benefit.title === 'string' &&
+        typeof benefit.description === 'string' &&
+        typeof benefit.icon === 'string'
+      ) &&
+      Array.isArray(content.features) &&
+      content.features.length === 3 &&
+      content.features.every(feature =>
+        typeof feature.title === 'string' &&
+        typeof feature.description === 'string' &&
+        typeof feature.imageQuery === 'string'
+      )
+    );
+  }
+
+  validateSocialSection(social) {
+    return (
+      social &&
+      Array.isArray(social.testimonials) &&
+      social.testimonials.length === 2 &&
+      social.testimonials.every(testimonial =>
+        typeof testimonial.quote === 'string' &&
+        typeof testimonial.author === 'string'
+      )
+    );
+  }
+
+  validateClosingSection(closing) {
+    return (
+      closing &&
+      typeof closing.headline === 'string' &&
+      typeof closing.ctaText === 'string'
+    );
+  }
+
+  validateDesignSection(design) {
+    return (
+      design &&
+      design.colors &&
+      typeof design.colors.primary === 'string' &&
+      typeof design.colors.secondary === 'string' &&
+      typeof design.colors.accent === 'string' &&
+      design.fonts &&
+      typeof design.fonts.heading === 'string' &&
+      typeof design.fonts.body === 'string'
+    );
+  }
+}
+
+const openaiService = new OpenAIService();
 export default openaiService;
